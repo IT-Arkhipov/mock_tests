@@ -5,40 +5,7 @@ import pytest
 
 from resources.endpoints import endpoint
 from utils import api_requests
-
-
-@pytest.fixture
-def mock_requests_get():
-    with patch('utils.api_requests.requests.get') as mock_get:
-        # Create a mock response object
-        response_mock = MagicMock()
-        response_mock.status_code = 200  # Set expected status code
-        response_mock.json.return_value = {"key": "value"}  # Optionally set JSON response
-
-        # Configure the mock to return this response when called
-        mock_get.return_value = response_mock
-        yield mock_get  # Yield the mock for use in tests
-
-
-@pytest.fixture
-def mock_requests_post():
-    with patch('utils.api_requests.requests.post') as mock_post:
-        response_mock = MagicMock()
-        response_mock.status_code = 201
-        response_mock.json.return_value = {"message": "created"}
-        mock_post.return_value = response_mock
-        yield mock_post
-
-
-@pytest.fixture(scope='function')
-def mock_fixture(request):
-    """Dynamically select which mock to use based on the test name."""
-    if 'get' in request.node.name:
-        return request.getfixturevalue('mock_requests_get')
-    elif 'post' in request.node.name:
-        return request.getfixturevalue('mock_requests_post')
-    else:
-        return None  # or raise an error if appropriate
+from utils.init import settings
 
 
 class TestGetMethods(unittest.TestCase):
@@ -56,10 +23,17 @@ class TestGetMethods(unittest.TestCase):
 
     # mocked response test
     @pytest.mark.mocked
-    @pytest.mark.usefixtures('mock_fixture')
-    def test_mocked_get_method_response_code(self):
+    @pytest.mark.skipif(settings.skip_mocking, reason='Skipping mocking')
+    @patch('utils.api_requests.requests')
+    def test_mocked_get_method_response_code(self, request_mock):
         # ARRANGE
         expected_response_code = 200
+
+        response_mock = MagicMock()
+        response_mock.status_code = 200  # Set expected status code
+        response_mock.json.return_value = {"key": "value"}  # Optionally set JSON response
+        request_mock.get.return_value = response_mock
+
         # ACT
         response = api_requests.get(endpoint='test')
         # ASSERT
