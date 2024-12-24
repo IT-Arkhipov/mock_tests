@@ -5,6 +5,7 @@ import pytest
 
 from resources.endpoints import endpoint
 from utils import api_requests
+from utils.init import settings
 
 
 @pytest.fixture
@@ -55,7 +56,7 @@ class TestGetMethods(unittest.TestCase):
         )
 
     # mocked response test
-    @pytest.mark.mocked
+    @pytest.mark.skipif(settings.skip_mocking, reason='Skipping mocking')
     @pytest.mark.usefixtures('mock_fixture')
     def test_mocked_get_method_response_code(self):
         # ARRANGE
