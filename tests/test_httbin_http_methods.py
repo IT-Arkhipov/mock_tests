@@ -23,7 +23,7 @@ class TestGetMethods(unittest.TestCase):
 
     # mocked response test
     @pytest.mark.mocked
-    @pytest.mark.skipif(settings.skip_mocking, reason='Skipping mocking')
+    @pytest.mark.skipif(settings.skip_mocking, reason='Skip mocking')
     @patch('utils.api_requests.requests')
     def test_mocked_get_method_response_code(self, request_mock):
         # ARRANGE
